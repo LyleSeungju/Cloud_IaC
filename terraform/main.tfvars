@@ -2,41 +2,41 @@
 region = "ap-northeast-2"
 
 # VPC
-vpc_cidr = "192.168.0.0/22"
-vpc_name = "my-vpc"
+vpc_cidr = "192.168.0.0/16"
+vpc_name = "test-vpc"
 
 # IGW
-igw_name = "my-igw"
+igw_name = "test-igw"
 
 # Subnet
 public_subnet = {
   cidr = "192.168.0.0/24"
   az   = "ap-northeast-2a"
-  name = "my-public-subnet"
+  name = "test-public-subnet"
 }
 
 private_subnets = [
   {
     cidr = "192.168.1.0/24"
     az   = "ap-northeast-2a"
-    name = "my-private-subnet-1"
+    name = "test-private-subnet-1"
   },
   {
     cidr = "192.168.2.0/24"
     az   = "ap-northeast-2c"
-    name = "my-private-subnet-2"
+    name = "test-private-subnet-2"
   }
 ]
 
 # NAT
-nat_name = "my-nat"
+nat_name = "test-nat"
 
 # Route Table
-public_route_table_name  = "my-public-rt"
-private_route_table_name = "my-private-rt"
+public_route_table_name  = "test-public-rt"
+private_route_table_name = "test-private-rt"
 
 # Security Groups
-sg_name = "my-sg"
+sg_name = "test-sg"
 ingress = {
   from_port   = 22
   to_port     = 22
@@ -52,24 +52,22 @@ egress = {
 
 # EC2 Instance
 ami                    = "ami-062cf18d655c0b1e8"
-instance_type          = "t2.micro"
-key_name               = "aws-ktb-key"
+instance_type          = "t3.nano"
+key_name               = "kakao-lyle"
 
 instance_public_count  = 1
-instance_private_count = 2
+instance_private_count = 1
 
 
 # RDS
 allocated_storage    = 10
-db_name              = "mydb"
+db_name              = "lyletestterraform"
 engine               = "mysql"
 engine_version       = "8.0.35"
 instance_class       = "db.t4g.micro"
 username             = "root"
 password             = "rootmaster"
-parameter_group_name = "default.mysql8.0"
-skip_final_snapshot  = true
-max_allocated_storage = 100
 
 
 # S3
+  

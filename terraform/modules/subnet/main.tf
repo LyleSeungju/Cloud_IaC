@@ -17,7 +17,7 @@ resource "aws_subnet" "private" {
   vpc_id                  = var.vpc_id      # VPC ID
   cidr_block              = each.value.cidr # CIDR
   availability_zone       = each.value.az   # Availability Zone
-  map_public_ip_on_launch = false           # 서브넷에 생성된 인스턴스에 자동으로 퍼블릭 IP 할당 여부
+  map_public_ip_on_launch = true           # 서브넷에 생성된 인스턴스에 자동으로 퍼블릭 IP 할당 여부
 
   tags = {
     Name = each.value.name

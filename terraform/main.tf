@@ -1,6 +1,7 @@
 # AWS Region
 provider "aws" {
   region = var.region
+  profile = "Terraform-test"
 }
 
 # VPC
@@ -69,8 +70,7 @@ module "instance" {
 # RDS
 module "rds" {
   source               = "./modules/rds"
-  count                = var.rds_count
-  name                 = var.rds_name
+  rds_name             = var.rds_name
   allocated_storage    = var.allocated_storage
   db_name              = var.db_name
   engine               = var.engine
@@ -78,7 +78,16 @@ module "rds" {
   instance_class       = var.instance_class
   username             = var.username
   password             = var.password
-  parameter_group_name = var.parameter_group_name
+  # parameter_group_name = [
+  #   {
+  #     name  = "character_set_client"
+  #     value = "utf8mb4"
+  #   },
+  #   {
+  #     name  = "character_set_server"
+  #     value = "utf8mb4"
+  #   }
+  # ]
   skip_final_snapshot  = var.skip_final_snapshot
   max_allocated_storage = var.max_allocated_storage
   security_group_id    = module.security_group.security_group_id

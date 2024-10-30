@@ -7,3 +7,4 @@ variable "name" {
   description = "NAT 게이트웨이 이름"
   type        = string
 }
+
