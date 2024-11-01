@@ -40,13 +40,7 @@ variable "password" {
   sensitive   = true
 }
 
-# variable "parameter_group_name" {
-#   description = "RDS 파라미터 그룹 이름"
-#   type        = list(object({
-#     name = string
-#     value = string
-#   }))
-# }
+
 
 variable "skip_final_snapshot" {
   description = "삭제 시 최종 스냅샷 생성 여부"

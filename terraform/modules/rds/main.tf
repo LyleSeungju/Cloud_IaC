@@ -29,10 +29,9 @@ resource "aws_db_instance" "default" {
   instance_class         = var.instance_class                   # 인스턴스 유형
   username               = var.username                         # 데이터베이스 관리자 이름
   password               = var.password                         # 데이터베이스 관리자 비밀번호
-  # parameter_group_name   = aws_db_parameter_group.rds_parameter_group.name            # 사용할 파라미터 그룹
   skip_final_snapshot    = var.skip_final_snapshot              # 인스턴스 삭제할 때 최종 스냅샷 생성을 건너뜀 (true면 생성되지 않음)
   max_allocated_storage  = var.max_allocated_storage            # 최대 자동 확장 스토리지 크기
-  vpc_security_group_ids = [var.security_group_id]              # VPC에 소속된 보안그룹
+  vpc_security_group_ids = [var.security_group_id]
   db_subnet_group_name   = aws_db_subnet_group.default.name     # RDS에 할당할 서브넷 그룹
 
   tags = {
