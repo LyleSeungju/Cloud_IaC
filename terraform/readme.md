@@ -35,7 +35,7 @@
 - [DynamoDB 테이블](#dynamodb-설정) (선택 사항)
 
 ---
-### VPC 
+# VPC 
 
 #### main_vpc.tf
 입력값
@@ -130,7 +130,7 @@ sg = [
 - 보안 그룹 데이터베이스용: custom-vpc-sg-db-sg
 ---
 
-### EC2 Instance
+## EC2 Instance
 #### main_ec2_instance.tf
 입력값
 ```
@@ -151,7 +151,7 @@ instances = [
 - EC2 인스턴스: custom-vpc-instance-web-service
 
 ---
-### RDS  (선택 사항)
+## RDS  (선택 사항)
 #### main_rds.tf
 입력값
 ```
@@ -202,7 +202,7 @@ rds_sg = [
 - RDS 보안 그룹: custom-vpc-sg-rds-db
 
 ---
-### S3  (선택 사항)
+## S3  (선택 사항)
 #### main_s3.tf
 입력값
 ```
@@ -228,7 +228,7 @@ s3_buckets = {
 
 ---
 
-### ECR  (선택 사항)
+## ECR  (선택 사항)
 #### main_ecr.tf
 입력값
 ```
@@ -257,7 +257,7 @@ ecr_repositories = [
 - 태그: 각 리포지토리에 지정된 환경 및 프로젝트 태그 포함
 
 ---
-### DynamoDB  (선택 사항)
+## DynamoDB  (선택 사항)
 #### main_dynamodb.tf
 입력값
 ```
@@ -300,7 +300,7 @@ dynamodb_tables = [
 - 정렬 키 (선택 사항): 필요시 정렬 키 추가 가능
 - 태그: 각 테이블에 추가할 환경 및 프로젝트 태그 포함
 --- 
-### 출력값(예시)
+## 출력값(예시)
 ```
 {
   "instances_info": {
