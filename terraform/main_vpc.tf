@@ -31,6 +31,7 @@ module "vpc" {
     Name = "${var.vpc_config.name}-vpc"
   }
 }
+# export: module.vpc.vpc_id
 
 
 # NAT Gateway
@@ -50,17 +51,18 @@ module "nat_gateway" {
   name      = "${module.vpc.name}-nat"
   enabled   = var.nat.enabled
   vpc_id    = module.vpc.vpc_id
-  subnet_id = module.public_subnet_group.subnet_ids["${var.nat.public_subnet_name}"]
+  subnet_id = module.public_subnet["${var.nat.public_subnet_name}"].subnet_id
 }
+# export: module.nat_gateway.nat_id
 
 
 
 # Route Table
 module "public_route_table" {
   source  = "./modules/route_table"
-  name    = "${module.vpc.name}-public-rtb"
+  name    = "${module.vpc.name}-rtb-public"
   vpc_id  = module.vpc.vpc_id
-  subnets = values(module.public_subnet_group.subnet_ids)
+  subnets = [for key, subnet in module.public_subnet : subnet.subnet_id]
 
   ipv4_routes = [
     {
@@ -69,18 +71,20 @@ module "public_route_table" {
     }
   ]
 }
+# export: module.route_table.rtb_id
 
 module "private_route_table" {
   source  = "./modules/route_table"
-  name    = "${module.vpc.name}-private-rtb"
+  name    = "${module.vpc.name}-rtb-private"
   vpc_id  = module.vpc.vpc_id
-  subnets = values(module.private_subnet_group.subnet_ids)
+  subnets = [for key, subnet in module.private_subnet : subnet.subnet_id]
 
   ipv4_routes = [
     {
       cidr_block     = "0.0.0.0/0"
-      nat_gateway_id = module.nat_gateway.nat_gateway_id
+      nat_gateway_id = module.nat_gateway.nat_id
     }
   ]
 }
+# export: module.route_table.rtb_id
 

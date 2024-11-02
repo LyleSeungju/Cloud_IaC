@@ -51,7 +51,7 @@ resource "aws_route_table_association" "this" {
 }
 
 # 라우팅 테이블 ID 출력
-output "route_table_id" {
+output "rtb_id" {
   value       = aws_route_table.this.id
   description = "생성된 라우팅 테이블의 ID"
 }

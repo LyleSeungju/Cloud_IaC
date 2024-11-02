@@ -13,30 +13,30 @@ variable "map_public_ip_on_launch" {
   type        = bool
 }
 
-variable "subnets" {
-  description = "서브넷 정보 맵"
-  type = map(object({
-    cidr_block           = string
-    availability_zone = string
-  }))
+variable "cidr_block" {
+  description = "서브넷 CIDR 블록"
+  type        = string
+}
+
+variable "availability_zone" {
+  description = "서브넷의 가용 영역"
+  type        = string
 }
 
 # 서브넷 생성
 resource "aws_subnet" "this" {
-  for_each = var.subnets
-
   vpc_id                  = var.vpc_id
-  cidr_block              = each.value.cidr_block
-  availability_zone       = each.value.availability_zone
+  cidr_block              = var.cidr_block
+  availability_zone       = var.availability_zone
   map_public_ip_on_launch = var.map_public_ip_on_launch
 
   tags = {
-    Name = "${var.name}-${each.key}"
+    Name = "${var.name}"
   }
 }
 
 # 서브넷 ID 출력
-output "subnet_ids" {
-  value       = { for key, subnet in aws_subnet.this : key => subnet.id }
-  description = "생성된 서브넷 ID 목록 (서브넷 이름별)"
+output "subnet_id" {
+  value       = aws_subnet.this.id
+  description = "생성된 서브넷 ID"
 }
