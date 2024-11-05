@@ -1,7 +1,7 @@
 
 # Lyle 테라폼  모듈화 사용 설명서 
-- MAIN 브랜치는 각 모듈을 유지보수하기 쉽도록 main.tf/variable.tf/output.tf 파일로 분리되어 구성했습니다. 
 - Terraform-study 브랜치는 각 모듈을 한눈에 보며 어떤 식으로 이뤄져있는지 학습하기 위하여 하나의 main.tf 파일로 구성했습니다.
+- main.tf 파일에는 variable / resource / output 로 이뤄져 있습니다.
 
 ### 테라폼 실행 순서
 
