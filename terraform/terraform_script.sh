@@ -17,15 +17,15 @@ terraform apply -auto-approve planfile
 terraform output -json > terraform_output.json
 
 # Ansible 디렉토리로 이동
-cd ../ansible-C
+cd ../ansible
 
 if [ $? -ne 0 ]; then
-  echo "Error: ../ansible-C 디렉토리를 찾을 수 없습니다."
+  echo "Error: ../ansible 디렉토리를 찾을 수 없습니다."
   exit 1
 fi
 
 # Ansible 인벤토리 파일 생성
-cat <<EOF > hosts.ini
+cat <<EOF > inventory.ini
 EOF
 
 # `terraform_output.json`의 각 출력 항목을 동적으로 처리
@@ -34,9 +34,9 @@ function add_to_hosts_ini() {
   local entries=$2
   local key_var=$3
   local value_var=$4
-  echo "[$section_name]" >> hosts.ini
-  echo "$entries" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> hosts.ini
-  echo "" >> hosts.ini
+  echo "[$section_name]" >> inventory.ini
+  echo "$entries" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> inventory.ini
+  echo "" >> inventory.ini
 }
 
 # bucket_names 출력 처리
@@ -60,9 +60,9 @@ fi
 # instances_info 출력 처리
 instances_info=$(jq -r '.instances_info.value' terraform_output.json)
 if [ "$instances_info" != "null" ] && [ "$instances_info" != "{}" ]; then
-  echo "[instances_info]" >> hosts.ini
+  echo "[instances_info]" >> inventory.ini
   echo "$instances_info" | jq -r 'to_entries[] | "\(.key) public_ip=\(.value.public_ip) private_ip=\(.value.private_ip) instance_id=\(.value.instance_id)"' >> hosts.ini
-  echo "" >> hosts.ini
+  echo "" >> inventory.ini
 fi
 
 # website_endpoints 출력 처리
@@ -74,9 +74,9 @@ fi
 # rds_endpoint 출력 처리
 rds_endpoint=$(jq -r '.rds_endpoint.value' terraform_output.json)
 if [ "$rds_endpoint" != "null" ]; then
-  echo "[rds_endpoint]" >> hosts.ini
-  echo "endpoint=$rds_endpoint" >> hosts.ini
-  echo "" >> hosts.ini
+  echo "[rds_endpoint]" >> inventory.ini
+  echo "endpoint=$rds_endpoint" >> inventory.ini
+  echo "" >> inventory.ini
 fi
 
-echo "hosts.ini 파일이 ../ansible-C 디렉토리에 생성되었습니다."
+echo "inventory.ini 파일이 ../ansible 디렉토리에 생성되었습니다."
