@@ -1,0 +1,64 @@
+- name: Jenkins 플러그인 설치
+  hosts: jenkins_server
+  become: true
+  vars:
+    jenkins_plugins:
+      # 추가로 설치하는 플러그인
+      - github
+      - docker-workflow # Docker Pipeline
+      - amazon-ecr
+      - aws-credentials
+      - ssh-agent
+      - ec2 # Amazon EC2
+      - configuration-as-code
+
+      # 초기 설정 마법사때 설치하는 플러그인
+      - cloudbees-folder  # Folders Plugin
+      - antisamy-markup-formatter  # OWASP Markup Formatter Plugin
+      - build-timeout  # Build Timeout Plugin
+      - credentials-binding  # Credentials Binding Plugin
+      - timestamper  # Timestamper Plugin
+      - ws-cleanup  # Workspace Cleanup Plugin
+      - ant  # Ant Plugin
+      - gradle  # Gradle Plugin
+      - pipeline-github-lib  # Groovy Libraries Plugin
+      - pipeline-graph-view  # Pipeline Graph View Plugin
+      - git  # Git Plugin
+      - github-branch-source  # GitHub Branch Source Plugin
+      - ssh-slaves  # SSH Build Agents Plugin
+      - matrix-auth  # Matrix Authorization Strategy Plugin
+      - pam-auth  # PAM Authentication Plugin
+      - ldap  # LDAP Plugin
+      - email-ext  # Email Extension Plugin
+      - mailer  # Mailer Plugin
+      - dark-theme  # Dark Theme Plugin
+
+  tasks:
+    - name: 플러그인 목록 파일 생성 (Jenkins 서버에서)
+      ansible.builtin.copy:
+        dest: /tmp/plugins.txt
+        content: "{{ jenkins_plugins | join('\n') }}"
+        mode: '0644'
+      changed_when: true
+
+    - name: 플러그인 목록 파일을 Jenkins 컨테이너에 복사
+      ansible.builtin.command:
+        cmd: docker cp /tmp/plugins.txt jenkins:/var/jenkins_home/plugins.txt
+      changed_when: true
+
+    - name: Jenkins 플러그인 설치
+      ansible.builtin.command:
+        cmd: docker exec jenkins jenkins-plugin-cli -f /var/jenkins_home/plugins.txt
+      changed_when: true
+
+    - name: Jenkins 재시작
+      ansible.builtin.command:
+        cmd: docker restart jenkins
+      changed_when: true
+      notify: Restart Jenkins
+
+  handlers:
+    - name: Restart Jenkins
+      ansible.builtin.command:
+        cmd: docker restart jenkins
+      changed_when: true
