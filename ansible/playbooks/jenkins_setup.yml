@@ -1,0 +1,132 @@
+---
+- name: Jenkins 설치 및 설정
+  hosts: jenkins_server
+  become: true
+  vars:
+    jenkins_install_url: "http://192.168.0.1:8080"
+    jenkins_install_admin_username: "admin"
+    jenkins_install_admin_password: "admin"
+    jenkins_admin_email: "test@email.com"
+
+  tasks:
+    # Docker 설치
+    - name: Docker 설치 (Amazon Linux 2023 기준)
+      ansible.builtin.dnf:
+        name: docker
+        state: present
+
+    - name: Docker 서비스 시작 및 활성화
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    # Docker 그룹에 ec2-user 추가
+    - name: Ec2-user를 Docker 그룹에 추가
+      ansible.builtin.user:
+        name: ec2-user
+        groups: docker
+        append: true
+
+    # 사전 작업
+    - name: Jenkins 컨테이너 중지
+      community.docker.docker_container:
+        name: jenkins
+        state: stopped
+      ignore_errors: true # noqa: ignore-errors
+
+    - name: Jenkins 컨테이너 삭제
+      community.docker.docker_container:
+        name: jenkins
+        state: absent
+      ignore_errors: true # noqa: ignore-errors
+
+    - name: Jenkins 홈 디렉터리 삭제
+      ansible.builtin.file:
+        path: /var/jenkins_home
+        state: absent
+      ignore_errors: true # noqa: ignore-errors
+
+
+    # Jenkins 홈 디렉터리 생성 및 권한 설정
+    - name: Jenkins 홈 디렉터리 생성
+      ansible.builtin.file:
+        path: /var/jenkins_home
+        state: directory
+        mode: '0775'
+        owner: 1000
+        group: 1000
+
+    # init.groovy.d 디렉터리 생성
+    - name: Init.groovy.d 디렉터리 생성
+      ansible.builtin.file:
+        path: /var/jenkins_home/init.groovy.d
+        state: directory
+        mode: '0755'
+        owner: 1000
+        group: 1000
+
+    # Jenkins 초기 설정 스크립트 생성
+    - name: Jenkins 초기 설정 스크립트 생성
+      ansible.builtin.copy:
+        dest: /var/jenkins_home/init.groovy.d/basic-security.groovy
+        content: |
+          import jenkins.model.*
+          import hudson.security.*
+
+          // 보안 설정
+          def instance = Jenkins.getInstance()
+          def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+          hudsonRealm.createAccount("{{ jenkins_install_admin_username }}", "{{ jenkins_install_admin_password }}")
+          instance.setSecurityRealm(hudsonRealm)
+          def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
+          strategy.setAllowAnonymousRead(false)
+          instance.setAuthorizationStrategy(strategy)
+          instance.save()
+
+          // URL 설정
+          def jenkinsLocationConfiguration = JenkinsLocationConfiguration.get()
+          jenkinsLocationConfiguration.setUrl("{{ jenkins_install_url }}")
+          jenkinsLocationConfiguration.setAdminAddress("{{ jenkins_admin_email }}")
+          jenkinsLocationConfiguration.save()
+
+          // 초기 설치 상태 설정
+          def jenkins = Jenkins.getInstance()
+          jenkins.setInstallState(InstallState.INITIAL_SETUP_COMPLETED)
+          jenkins.save()
+        owner: 1000
+        group: 1000
+        mode: '0644'
+
+    # Jenkins Docker 이미지 다운로드 및 컨테이너 실행
+    - name: Jenkins Docker 이미지 다운로드
+      community.docker.docker_image:
+        name: jenkins/jenkins
+        tag: lts
+        source: pull
+
+    - name: Jenkins 컨테이너 실행
+      community.docker.docker_container:
+        name: jenkins
+        image: jenkins/jenkins:lts
+        ports:
+          - "8080:8080"
+          - "50000:50000"
+        volumes:
+          - "/var/jenkins_home:/var/jenkins_home"
+        user: "1000:1000"
+        restart_policy: always
+      notify:
+        - Stop Jenkins
+        - Start Jenkins
+
+  handlers:
+    - name: Stop Jenkins
+      community.docker.docker_container:
+        name: jenkins
+        state: stopped
+
+    - name: Start Jenkins
+      community.docker.docker_container:
+        name: jenkins
+        state: started
